@@ -3,6 +3,7 @@ import sys,subprocess
 subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pygame'])
 
 import pygame, random, time
+pygame.init()
 
 ### 1-1. 게임 사전 설정
 # 게임에 대한 기본적인 설정에 대한 변수
