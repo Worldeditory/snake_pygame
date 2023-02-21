@@ -21,13 +21,21 @@ frame = (720, 480)
 # Colors (R, G, B)
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
+
 red = pygame.Color(255, 0, 0)
+orange = pygame.Color(255, 127, 0)
+yellow = pygame.Color(255, 255, 0)
 green = pygame.Color(0, 255, 0)
 blue = pygame.Color(0, 0, 255)
+navy = pygame.Color(0, 0, 127)
+purple = pygame.Color(255, 0, 255)
+
+rainbow = [red, orange, yellow, green, blue, navy, purple]
 
 # Game 관련 변수
 snake_pos = [100, 50]
 snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
+snake_color = green
 
 food_pos = [
     random.randrange(1, (frame[0] // 10)) * 10,
@@ -69,6 +77,11 @@ def Init(size):
 
 ### 1-3. 기본 logic 함수 모음
 # 게임을 플레이하기 위해 필요한 함수들의 모음
+
+# (r, g, b)받아서 뱀 색 변경하는 함수
+def snake_color_change(r, g, b):
+    global snake_color
+    snake_color = pygame.Color(r, g, b)
 
 
 # Score
@@ -135,6 +148,10 @@ def get_keyboard(key, cur_dir):
 # Initialize
 main_window = Init(frame)
 
+# 반짝거리는 무지개 뱀
+# rainbow_idx = 0
+
+
 while True:
     # 게임에서 event를 받아옵니다.
     for event in pygame.event.get():
@@ -176,6 +193,11 @@ while True:
 
     # 음식이 없다면 음식을 랜덤한 위치에 생성합니다.
     if not food_spawn:
+        # 임시로 음식 먹을때마다 색 바뀌게 만들었음
+        snake_color_change(
+            random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)
+        )
+
         while food_spawn == False:
             food_spawn = True
             food_pos = [
@@ -198,8 +220,18 @@ while True:
 
     # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
     main_window.fill(black)
+
+    # 무지개 뱀 만들기
+    # rainbow_idx = 0
+
     for pos in snake_body:
-        pygame.draw.rect(main_window, green, pygame.Rect(pos[0], pos[1], 10, 10))
+        pygame.draw.rect(main_window, snake_color, pygame.Rect(pos[0], pos[1], 10, 10))
+        # 무지개 뱀 관련 코드
+        # rainbow_idx += 1
+        # rainbow_idx %= 7
+        # pygame.draw.rect(
+        #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
+        # )
 
     # 음식을 그립니다.
     pygame.draw.rect(main_window, white, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
