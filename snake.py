@@ -33,11 +33,7 @@ purple = pygame.Color(255, 0, 255)
 rainbow = [red, orange, yellow, green, blue, navy, purple]
 
 # Game 관련 변수
-<<<<<<< Updated upstream
 snake_pos = [360, 240]
-=======
-snake_pos = [150, 50]
->>>>>>> Stashed changes
 snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 snake_color = green
 
@@ -97,11 +93,7 @@ def show_score(window, size, choice, color, font, fontsize):
 
     # Game over 상황인지 게임중 상황인지에 따라 다른 위치를 선정합니다.
     if choice == 1:
-<<<<<<< Updated upstream
         score_rect.midtop = (size[0] / 13, 15)
-=======
-        score_rect.midtop = (size[0] / 12, 15)
->>>>>>> Stashed changes
     else:
         score_rect.midtop = (size[0] / 2, size[1] / 1.25)
 
@@ -209,11 +201,7 @@ while True:
         while food_spawn == False:
             food_spawn = True
             food_pos = [
-<<<<<<< Updated upstream
                 random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
-=======
-                random.randrange(1 + 12, (frame[0] // 10) - 12) * 10,
->>>>>>> Stashed changes
                 random.randrange(1, (frame[1] // 10)) * 10,
             ]
             # 만약 음식 생성 위치에 장애물이 있다면 다른곳에 음식을 생성함
@@ -224,11 +212,7 @@ while True:
 
         # 장애물을 생성함
         while 1:
-<<<<<<< Updated upstream
             obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
-=======
-            obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 12) * 10
->>>>>>> Stashed changes
             obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
             if [obstacle_x, obstacle_y] != food_pos:
                 obstacle_pos.append([obstacle_x, obstacle_y])
@@ -237,21 +221,13 @@ while True:
     # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
     main_window.fill(black)
 
-<<<<<<< Updated upstream
-=======
-    # 회색 테두리 그리기
->>>>>>> Stashed changes
     pygame.draw.rect(
         main_window, pygame.Color(127, 127, 127), pygame.Rect(0, 0, 120, 480)
     )
     pygame.draw.rect(
-<<<<<<< Updated upstream
         main_window,
         pygame.Color(127, 127, 127),
         pygame.Rect(frame[0] - 120, 0, 120, 480),
-=======
-        main_window, pygame.Color(127, 127, 127), pygame.Rect(720 - 120, 0, 120, 480)
->>>>>>> Stashed changes
     )
 
     # 무지개 뱀 만들기
@@ -278,11 +254,7 @@ while True:
     # Game Over 상태를 확인합니다.
 
     # 바깥 벽 충돌
-<<<<<<< Updated upstream
     if snake_pos[0] < 0 + 120 or snake_pos[0] > frame[0] - 10 - 120:
-=======
-    if snake_pos[0] < 0 + 12 or snake_pos[0] > frame[0] - 10:
->>>>>>> Stashed changes
         game_over(main_window, frame)
     if snake_pos[1] < 0 or snake_pos[1] > frame[1] - 10:
         game_over(main_window, frame)
