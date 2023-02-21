@@ -3,7 +3,8 @@ import sys, subprocess
 
 subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame"])
 
-import pygame, random, time, os, winsound
+import pygame, random, time, os
+pygame.init()
 
 ### 1-1. 게임 사전 설정
 # 게임에 대한 기본적인 설정에 대한 변수
@@ -20,6 +21,7 @@ frame = (720, 480)
 # 색깔 정의 (Red, Green, Blue)
 # Colors (R, G, B)
 black = pygame.Color(0, 0, 0)
+gray = (55,55,55)
 white = pygame.Color(255, 255, 255)
 
 red = pygame.Color(255, 0, 0)
@@ -35,7 +37,10 @@ rainbow = [red, orange, yellow, green, blue, navy, purple]
 # Game 관련 변수
 score1 = 0
 score2 = 0
-mode = 2
+penalty = 10
+obstacle = 1
+mode = 0
+terminal = 0
 
 snake_pos1 = [320, 200]
 snake_body1 = [
@@ -71,6 +76,9 @@ obstacle_pos = []
 obstacle_x = 0
 obstacle_y = 0
 
+#소리, 사진 asset을 위한 상대경로
+a=os.path.dirname(__file__)
+
 ### 1-2. Pygame 초기화
 # Pygame을 사용하기 위해 창 크기, 제목 등을 주어 초기화를 해줍니다.
 
@@ -104,6 +112,97 @@ def snake_color_change(r, g, b, num):
     elif num == 2:
         snake_color2 = pygame.Color(r, g, b)
 
+#파일에서 소리를 가져와 재생하는 함수 / loop가 T일 시 반복재생
+def playSound(filename, loop=False):
+    pygame.mixer.music.load(a+filename)
+    if loop: 
+        num = -1
+    else:
+        num = 1
+    pygame.mixer.music.play(num)
+    pygame.mixer.music.set_volume(10)
+
+class Buttons():
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, size=30):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.onclickFunction = onclickFunction
+        self.onePress = onePress
+        self.alreadyPressed = False
+        self.size = size
+
+        self.fillColors = {
+            'normal': '#ffffff',
+            'hover': '#666666',
+            'pressed': '#333333',
+        }
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+        myFont = pygame.font.SysFont( "arial", 30, True, False)
+        self.buttonSurf = myFont.render(buttonText, True, (20, 20, 20))
+
+    def process(self):
+
+        mousePos = pygame.mouse.get_pos()
+        
+        self.buttonSurface.fill(self.fillColors['normal'])
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill(self.fillColors['hover'])
+
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.buttonSurface.fill(self.fillColors['pressed'])
+
+                if self.onePress:
+                    self.onclickFunction()
+
+                elif not self.alreadyPressed:
+                    self.onclickFunction()
+                    self.alreadyPressed = True
+
+            else:
+                self.alreadyPressed = False
+
+        self.buttonSurface.blit(self.buttonSurf, [
+            self.buttonRect.width/2 - self.buttonSurf.get_rect().width/2,
+            self.buttonRect.height/2 - self.buttonSurf.get_rect().height/2
+        ])
+        main_window.blit(self.buttonSurface, self.buttonRect)
+
+def changeterminal(num):
+    global terminal
+    terminal = num
+
+def changemode(num):
+    global mode
+    mode = num
+
+def changepenalty(num):
+    global penalty
+    penalty += num
+
+def allow_obstacle():
+    global obstacle
+    if obstacle == 1:
+        obstacle = 0
+    else: obstacle = 1
+
+def quitgame():
+    pygame.quit()
+    sys.exit()
+
+startB = Buttons(40, 400, 100, 40, 'Start', changeterminal(2))
+optionB= Buttons(310, 400, 100, 40, 'Options', changeterminal(1))
+exitB = Buttons(580, 400, 100, 40, 'Quit', quitgame)
+
+pUP = Buttons(140, 150, 100, 40, 'penalty up', changepenalty(1))
+pDOWN = Buttons(500, 150, 100, 40, 'penalty down', changepenalty(-1))
+wallB = Buttons(360, 300, 100, 40, 'allow/decline obstacle', allow_obstacle)
+backB = Buttons(360, 450, 100, 40, 'Back', changeterminal(0))
+
+player1 = Buttons(30, 30, 100, 40, '1 player', changemode(1))
+player2 = Buttons(30, 30, 100, 40, '2 player', changemode(2))
 
 # Score
 def show_score(window, size, choice, color, font, fontsize):
@@ -137,25 +236,19 @@ def show_score(window, size, choice, color, font, fontsize):
 
 # Game Over
 def game_over(window, size):
-    win = 0
-    if out1 == out2:
-        if out1 == 0:
-            win = 0
-        else:
-            win = 3
-    elif out1 == 0:
-        win = 1
-    else:
-        win = 2
+    playSound("\snake_assets\sound\Gameover.wav")
 
+    global flag, score1, score2,mode
     # 'Game Over'문구를 띄우기 위한 설정입니다.
     my_font = pygame.font.SysFont("times new roman", 90)
-    if win == 0:
+    if mode == 0:
         game_over_surface = my_font.render("Game Over", True, red)
-    elif win == 3:
-        game_over_surface = my_font.render("Draw!", True, red)
+    elif score1>score2:
+        game_over_surface = my_font.render("Player1 Wins!", True, red)
+    elif score1<score2:
+        game_over_surface = my_font.render("Player2 Wins!", True, red)
     else:
-        game_over_surface = my_font.render(f"Player{win} Wins!", True, red)
+        game_over_surface = my_font.render("It's a Draw!", True, red)
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (size[0] / 2, size[1] / 4)
 
@@ -168,12 +261,10 @@ def game_over(window, size):
 
     # 그려진 화면을 실제로 띄워줍니다.
     pygame.display.flip()
-
     # 3초 기다린 후 게임을 종료합니다.
-    time.sleep(3)
-    pygame.quit()
-    sys.exit()
-
+    pygame.time.delay(3000)
+    mode=0
+    score1 = score2 = 0
 
 # Keyboard input
 def get_keyboard1(key, cur_dir):
@@ -222,8 +313,7 @@ while True:
     for event in pygame.event.get():
         # 종료시 실제로 프로그램을 종료합니다.
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            quitgame()
         elif event.type == pygame.KEYDOWN:
             # esc 키를 눌렀을떄 종료 신호를 보냅니다.
             if event.key == pygame.K_ESCAPE:
@@ -232,201 +322,196 @@ while True:
                 # 입력 키로 방향을 얻어냅니다.
                 direction1 = get_keyboard1(event.key, direction1)
                 direction2 = get_keyboard2(event.key, direction2)
-
-    # 승자가리는 변수 지정
-    out1 = out2 = 0
-
-    # 실제로 뱀의 위치를 옮깁니다.
-    if direction1 == "UP1":
-        snake_pos1[1] -= 10
-    if direction1 == "DOWN1":
-        snake_pos1[1] += 10
-    if direction1 == "LEFT1":
-        snake_pos1[0] -= 10
-    if direction1 == "RIGHT1":
-        snake_pos1[0] += 10
-
-    if mode == 2:
-        if direction2 == "UP2":
-            snake_pos2[1] -= 10
-        if direction2 == "DOWN2":
-            snake_pos2[1] += 10
-        if direction2 == "LEFT2":
-            snake_pos2[0] -= 10
-        if direction2 == "RIGHT2":
-            snake_pos2[0] += 10
-
-    # 우선 증가시키고 음식의 위치가 아니라면 마지막을 뺍니다.
-    snake_body1.insert(0, list(snake_pos1))
-    if snake_pos1[0] == food_pos[0] and snake_pos1[1] == food_pos[1]:
-        score1 += 1
-        # 스코어 3점 오를때마다 속도 증가함
-        if fps_increase == 3:
-            fps += 1
-            fps_increase %= 3
-        else:
-            fps_increase += 1
-        food_spawn = False
-        snake_color_change(
-            random.randrange(0, 256),
-            random.randrange(0, 256),
-            random.randrange(0, 256),
-            num=1,
-        )
-    else:
-        snake_body1.pop()
-
-    snake_body2.insert(0, list(snake_pos2))
-    if snake_pos2[0] == food_pos[0] and snake_pos2[1] == food_pos[1]:
-        score2 += 1
-        # 스코어 3점 오를때마다 속도 증가함
-        if fps_increase == 3:
-            fps += 1
-            fps_increase %= 3
-        else:
-            fps_increase += 1
-        food_spawn = False
-        snake_color_change(
-            random.randrange(0, 256),
-            random.randrange(0, 256),
-            random.randrange(0, 256),
-            num=2,
-        )
-    else:
-        snake_body2.pop()
-
-    # 음식이 없다면 음식을 랜덤한 위치에 생성합니다.
-    if not food_spawn:
-        # 임시로 음식 먹을때마다 색 바뀌게 만들었음
-        while food_spawn == False:
-            food_spawn = True
-            food_pos = [
-                random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
-                random.randrange(1, (frame[1] // 10)) * 10,
-            ]
-            # 만약 음식 생성 위치에 장애물이 있다면 다른곳에 음식을 생성함
-            for obstacle in obstacle_pos:
-                if food_pos == obstacle:
-                    food_spawn = False
-                    break
-
-        # 장애물을 생성함
-        while 1:
-            obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
-            obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
-            if [obstacle_x, obstacle_y] != food_pos:
-                obstacle_pos.append([obstacle_x, obstacle_y])
-                break
-
-    # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
     main_window.fill(black)
-
-    pygame.draw.rect(
-        main_window, pygame.Color(127, 127, 127), pygame.Rect(0, 0, 120, 480)
-    )
-    pygame.draw.rect(
-        main_window,
-        pygame.Color(127, 127, 127),
-        pygame.Rect(frame[0] - 120, 0, 120, 480),
-    )
-
-    # 무지개 뱀 만들기
-    # rainbow_idx = 0
-
-    for pos in snake_body1:
-        pygame.draw.rect(main_window, snake_color1, pygame.Rect(pos[0], pos[1], 10, 10))
-        # 무지개 뱀 관련 코드
-        # pygame.draw.rect(
-        #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
-        # )
-        # rainbow_idx += 1
-        # rainbow_idx %= 7
-
-    if mode == 2:
-        for pos in snake_body2:
-            pygame.draw.rect(
-                main_window, snake_color2, pygame.Rect(pos[0], pos[1], 10, 10)
+    for object in [startB,optionB,exitB]:
+        object.process()
+        pygame.display.update()
+    if terminal==1:
+        main_window.fill(white)
+        for object in [pUP,pDOWN,wallB,backB]:
+            object.process()
+            pygame.display.update()
+    if terminal==2:
+        for object in [player1,player2]:
+            object.process()
+            pygame.display.update()
+    if mode != 0:
+        # 실제로 뱀의 위치를 옮깁니다.
+        if direction1 == "UP1":
+            snake_pos1[1] -= 10
+        if direction1 == "DOWN1":
+            snake_pos1[1] += 10
+        if direction1 == "LEFT1":
+            snake_pos1[0] -= 10
+        if direction1 == "RIGHT1":
+            snake_pos1[0] += 10
+        if mode == 2:
+            if direction2 == "UP2":
+                snake_pos2[1] -= 10
+            if direction2 == "DOWN2":
+                snake_pos2[1] += 10
+            if direction2 == "LEFT2":
+                snake_pos2[0] -= 10
+            if direction2 == "RIGHT2":
+                snake_pos2[0] += 10
+        # 우선 증가시키고 음식의 위치가 아니라면 마지막을 뺍니다.
+        snake_body1.insert(0, list(snake_pos1))
+        if snake_pos1[0] == food_pos[0] and snake_pos1[1] == food_pos[1]:
+            score1 += 1
+            playSound("\snake_assets\sound\Beep.wav")
+            # 스코어 3점 오를때마다 속도 증가함
+            if fps_increase == 3:
+                fps += 1
+                fps_increase %= 3
+            else:
+                fps_increase += 1
+            food_spawn = False
+            snake_color_change(
+                random.randrange(0, 256),
+                random.randrange(0, 256),
+                random.randrange(0, 256),
+                num=1,
             )
-        # 무지개 뱀 관련 코드
-        # pygame.draw.rect(
-        #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
-        # )
-        # rainbow_idx += 1
-        # rainbow_idx %= 7
-
-    # 음식을 그립니다.
-    pygame.draw.rect(main_window, red, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
-
-    # 장애물을 그립니다
-    for obstacle in obstacle_pos:
+        else:
+            snake_body1.pop()
+        snake_body2.insert(0, list(snake_pos2))
+        if snake_pos2[0] == food_pos[0] and snake_pos2[1] == food_pos[1]:
+            score2 += 1
+            playSound("\snake_assets\sound\Beep.wav")
+            # 스코어 3점 오를때마다 속도 증가함
+            if fps_increase == 3:
+                fps += 1
+                fps_increase %= 3
+            else:
+                fps_increase += 1
+            food_spawn = False
+            snake_color_change(
+                random.randrange(0, 256),
+                random.randrange(0, 256),
+                random.randrange(0, 256),
+                num=2,
+            )
+        else:
+            snake_body2.pop()
+        # 음식이 없다면 음식을 랜덤한 위치에 생성합니다.
+        if not food_spawn:
+            # 임시로 음식 먹을때마다 색 바뀌게 만들었음
+            while food_spawn == False:
+                food_spawn = True
+                food_pos = [
+                    random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
+                    random.randrange(1, (frame[1] // 10)) * 10,
+                ]
+                # 만약 음식 생성 위치에 장애물이 있다면 다른곳에 음식을 생성함
+                for obstacle in obstacle_pos:
+                    if food_pos == obstacle:
+                        food_spawn = False
+                        break
+                    
+            # 장애물을 생성함
+            while 1:
+                obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
+                obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
+                if [obstacle_x, obstacle_y] != food_pos:
+                    obstacle_pos.append([obstacle_x, obstacle_y])
+                    break
+                
+        # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
+        main_window.fill(black)
         pygame.draw.rect(
-            main_window, white, pygame.Rect(obstacle[0], obstacle[1], 10, 10)
+            main_window, pygame.Color(127, 127, 127), pygame.Rect(0, 0, 120, 480)
         )
-
-    # Game Over 상태를 확인합니다.
-    if mode == 1:
-        # 바깥 벽
-        if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
-            game_over(main_window, frame)
-        if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
-            game_over(main_window, frame)
-
-        # 자기 몸
-        for block in snake_body1[1:]:
-            if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
-                game_over(main_window, frame)
-
-        # 장애물
+        pygame.draw.rect(
+            main_window,
+            pygame.Color(127, 127, 127),
+            pygame.Rect(frame[0] - 120, 0, 120, 480),
+        )
+        # 무지개 뱀 만들기
+        # rainbow_idx = 0
+        for pos in snake_body1:
+            pygame.draw.rect(main_window, snake_color1, pygame.Rect(pos[0], pos[1], 10, 10))
+            # 무지개 뱀 관련 코드
+            # pygame.draw.rect(
+            #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
+            # )
+            # rainbow_idx += 1
+            # rainbow_idx %= 7
+        if mode == 2:
+            for pos in snake_body2:
+                pygame.draw.rect(
+                    main_window, snake_color2, pygame.Rect(pos[0], pos[1], 10, 10)
+                )
+            # 무지개 뱀 관련 코드
+            # pygame.draw.rect(
+            #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
+            # )
+            # rainbow_idx += 1
+            # rainbow_idx %= 7
+        # 음식을 그립니다.
+        pygame.draw.rect(main_window, red, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+        # 장애물을 그립니다
         for obstacle in obstacle_pos:
-            if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
+            pygame.draw.rect(
+                main_window, white, pygame.Rect(obstacle[0], obstacle[1], 10, 10)
+            )
+        # Game Over 상태를 확인합니다.
+        if mode == 1:
+            # 바깥 벽
+            if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
                 game_over(main_window, frame)
-
-    elif mode == 2:
-        # 바깥 벽
-        if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
-            out1 = 1
-            game_over(main_window, frame)
-        if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
-            out1 = 1
-            game_over(main_window, frame)
-
-        if snake_pos2[0] < 0 + 120 or snake_pos2[0] > frame[0] - 10 - 120:
-            out2 = 1
-            game_over(main_window, frame)
-        if snake_pos2[1] < 0 or snake_pos2[1] > frame[1] - 10:
-            out2 = 1
-            game_over(main_window, frame)
-
-        # 뱀끼리의 몸 충돌
-        for block in snake_body1[1:]:
-            if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
-                out1 = 1
+            if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
                 game_over(main_window, frame)
-            if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
-                out2 = 1
+            # 자기 몸
+            for block in snake_body1[1:]:
+                if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
+                    game_over(main_window, frame)
+            # 장애물
+            for obstacle in obstacle_pos:
+                if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
+                    game_over(main_window, frame)
+        elif mode == 2:
+            # 바깥 벽
+            if (
+                snake_pos1[0] < 0 + 120 
+                or snake_pos1[0] > frame[0] - 10 - 120
+                or snake_pos1[1] < 0
+                or snake_pos1[1] > frame[1] - 10
+                ):
+                score1 -= penalty
                 game_over(main_window, frame)
-
-        for block in snake_body2[1:]:
-            if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
-                out1 = 1
+            if (
+                snake_pos2[0] < 0 + 120
+                or snake_pos2[0] > frame[0] - 10 - 120
+                or snake_pos2[1] < 0
+                or snake_pos2[1] > frame[1] - 10
+                ):
+                score2 -= penalty
                 game_over(main_window, frame)
-            if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
-                out2 = 1
-                game_over(main_window, frame)
-
-        # 장애물과의 충돌
-        for obstacle in obstacle_pos:
-            if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
-                out1 = 1
-                game_over(main_window, frame)
-            if snake_pos2[0] == obstacle[0] and snake_pos2[1] == obstacle[1]:
-                out2 = 1
-                game_over(main_window, frame)
-
-    # 점수를 띄워줍니다.
-    show_score(main_window, frame, 1, white, "consolas", 20)
-
-    pygame.display.update()
-
-    # 해당 FPS만큼 대기
-    fps_controller.tick(fps)
+            # 뱀끼리의 몸 충돌
+            for block in snake_body1[1:]:
+                if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
+                    score1 -= penalty
+                    game_over(main_window, frame)
+                if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
+                    score2 -= penalty
+                    game_over(main_window, frame)
+            for block in snake_body2[1:]:
+                if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
+                    score1 -= penalty
+                    game_over(main_window, frame)
+                if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
+                    score2 -= penalty
+                    game_over(main_window, frame)
+            # 장애물과의 충돌
+            for obstacle in obstacle_pos:
+                if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
+                    score1 -= penalty
+                    game_over(main_window, frame)
+                if snake_pos2[0] == obstacle[0] and snake_pos2[1] == obstacle[1]:
+                    score2 -= penalty
+                    game_over(main_window, frame)
+        # 점수를 띄워줍니다.
+        show_score(main_window, frame, 1, white, "consolas", 20)
+        pygame.display.update()
+        # 해당 FPS만큼 대기
+        fps_controller.tick(fps)
