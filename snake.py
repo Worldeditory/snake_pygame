@@ -38,7 +38,7 @@ snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 snake_color = green
 
 food_pos = [
-    random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
+    random.randrange(1 + 12, (frame[0] // 10) - 13) * 10,
     random.randrange(1, (frame[1] // 10)) * 10,
 ]
 food_spawn = True
@@ -201,7 +201,7 @@ while True:
         while food_spawn == False:
             food_spawn = True
             food_pos = [
-                random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
+                random.randrange(1 + 12, (frame[0] // 10) - 13) * 10,
                 random.randrange(1, (frame[1] // 10)) * 10,
             ]
             # 만약 음식 생성 위치에 장애물이 있다면 다른곳에 음식을 생성함
@@ -212,7 +212,7 @@ while True:
 
         # 장애물을 생성함
         while 1:
-            obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
+            obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 13) * 10
             obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
             if [obstacle_x, obstacle_y] != food_pos:
                 obstacle_pos.append([obstacle_x, obstacle_y])
