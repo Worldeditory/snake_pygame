@@ -1,5 +1,6 @@
 # imports
 import sys, subprocess
+
 subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame"])
 
 import pygame, random, time, os, winsound
@@ -40,9 +41,10 @@ snake_pos1 = [320, 200]
 snake_body1 = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 snake_color1 = green
 
-if mode==1:
-        snake_pos2 = [-1, -1]
-else: snake_pos2 = [400, 280]
+if mode == 1:
+    snake_pos2 = [-1, -1]
+else:
+    snake_pos2 = [400, 280]
 snake_body2 = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 snake_color2 = blue
 
@@ -89,17 +91,17 @@ def Init(size):
 # (r, g, b)받아서 뱀 색 변경하는 함수
 def snake_color_change(r, g, b, num):
     global snake_color1, snake_color2
-    if num==1:
+    if num == 1:
         snake_color1 = pygame.Color(r, g, b)
-    elif num==2:
-        snake_color2=pygame.Color(r,g,b)
+    elif num == 2:
+        snake_color2 = pygame.Color(r, g, b)
 
 
 # Score
 def show_score(window, size, choice, color, font, fontsize):
     # Score를 띄우기 위한 설정입니다.
     score_font = pygame.font.SysFont(font, fontsize)
-    if mode == 1 :
+    if mode == 1:
         score_surface = score_font.render("Score:" + str(score1), True, color)
         score_rect = score_surface.get_rect()
 
@@ -110,8 +112,8 @@ def show_score(window, size, choice, color, font, fontsize):
             score_rect.midtop = (size[0] / 2, size[1] / 1.25)
         # 설정한 글자를 window에 복사
         window.blit(score_surface, score_rect)
-    elif mode == 2 :
-        score_surface1 = score_font.render(f"Player1:{score1}", True, color) 
+    elif mode == 2:
+        score_surface1 = score_font.render(f"Player1:{score1}", True, color)
         score_surface2 = score_font.render(f"Player2:{score2}", True, color)
         score_rect1 = score_surface1.get_rect()
         score_rect2 = score_surface2.get_rect()
@@ -127,12 +129,16 @@ def show_score(window, size, choice, color, font, fontsize):
 
 # Game Over
 def game_over(window, size):
-    win=0
-    if out1==out2:
-        if out1==0: win=0
-        else: win=3
-    elif out1==0: win=1
-    else: win=2
+    win = 0
+    if out1 == out2:
+        if out1 == 0:
+            win = 0
+        else:
+            win = 3
+    elif out1 == 0:
+        win = 1
+    else:
+        win = 2
 
     # 'Game Over'문구를 띄우기 위한 설정입니다.
     my_font = pygame.font.SysFont("times new roman", 90)
@@ -176,6 +182,7 @@ def get_keyboard1(key, cur_dir):
     # 모두 해당하지 않다면 원래 방향을 돌려줍니다.
     return cur_dir
 
+
 def get_keyboard2(key, cur_dir):
     # WASD, 방향키를 입력 받으면 해당 방향으로 이동합니다.
     # 방향이 반대방향이면 무시합니다.
@@ -189,6 +196,7 @@ def get_keyboard2(key, cur_dir):
         return "RIGHT2"
     # 모두 해당하지 않다면 원래 방향을 돌려줍니다.
     return cur_dir
+
 
 # Game이 동작하기 위한 메인 코드
 
@@ -216,9 +224,9 @@ while True:
                 # 입력 키로 방향을 얻어냅니다.
                 direction1 = get_keyboard1(event.key, direction1)
                 direction2 = get_keyboard2(event.key, direction2)
-    
-    #승자가리는 변수 지정
-    out1=out2=0
+
+    # 승자가리는 변수 지정
+    out1 = out2 = 0
 
     # 실제로 뱀의 위치를 옮깁니다.
     if direction1 == "UP1":
@@ -230,14 +238,14 @@ while True:
     if direction1 == "RIGHT1":
         snake_pos1[0] += 10
 
-    if mode==2:
+    if mode == 2:
         if direction2 == "UP2":
             snake_pos2[1] -= 10
-        if direction2== "DOWN2":
+        if direction2 == "DOWN2":
             snake_pos2[1] += 10
-        if direction2== "LEFT2":
+        if direction2 == "LEFT2":
             snake_pos2[0] -= 10
-        if direction2== "RIGHT2":
+        if direction2 == "RIGHT2":
             snake_pos2[0] += 10
 
     # 우선 증가시키고 음식의 위치가 아니라면 마지막을 뺍니다.
@@ -251,7 +259,12 @@ while True:
         else:
             fps_increase += 1
         food_spawn = False
-        snake_color_change(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256), num=1)
+        snake_color_change(
+            random.randrange(0, 256),
+            random.randrange(0, 256),
+            random.randrange(0, 256),
+            num=1,
+        )
     else:
         snake_body1.pop()
 
@@ -265,7 +278,12 @@ while True:
         else:
             fps_increase += 1
         food_spawn = False
-        snake_color_change(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256), num=2)
+        snake_color_change(
+            random.randrange(0, 256),
+            random.randrange(0, 256),
+            random.randrange(0, 256),
+            num=2,
+        )
     else:
         snake_body2.pop()
 
@@ -318,14 +336,16 @@ while True:
 
     if mode == 2:
         for pos in snake_body2:
-            pygame.draw.rect(main_window, snake_color2, pygame.Rect(pos[0], pos[1], 10, 10))
+            pygame.draw.rect(
+                main_window, snake_color2, pygame.Rect(pos[0], pos[1], 10, 10)
+            )
         # 무지개 뱀 관련 코드
         # pygame.draw.rect(
         #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
         # )
         # rainbow_idx += 1
-        # rainbow_idx %= 7    
-    
+        # rainbow_idx %= 7
+
     # 음식을 그립니다.
     pygame.draw.rect(main_window, red, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
 
@@ -337,45 +357,55 @@ while True:
 
     # Game Over 상태를 확인합니다.
     if mode == 1:
-        #바깥 벽
+        # 바깥 벽
         if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
-             game_over(main_window, frame)
+            game_over(main_window, frame)
         if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
-             game_over(main_window, frame)
+            game_over(main_window, frame)
 
-        #자기 몸
+        # 자기 몸
         for block in snake_body1[1:]:
             if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
-                 game_over(main_window, frame)
+                game_over(main_window, frame)
 
-        #장애물
+        # 장애물
         for obstacle in obstacle_pos:
             if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
-                 game_over(main_window, frame)
-    
-    
+                game_over(main_window, frame)
+
     elif mode == 2:
-        #바깥 벽
+        # 바깥 벽
         if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
-            out1=1; game_over(main_window, frame)
+            out1 = 1
+            game_over(main_window, frame)
         if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
-            out1=1; game_over(main_window, frame)
-        if snake_pos2[0] < 0 + 120 or snake_pos2[0] > frame[0] - 10 - 120:
-            out2=1; game_over(main_window, frame)
-        if snake_pos2[1] < 0 or snake_pos1[1] > frame[1] - 10:
-            out2=1; game_over(main_window, frame)
+            out1 = 1
+            game_over(main_window, frame)
 
-        #뱀끼리의 몸 충돌
+        if snake_pos2[0] < 0 + 120 or snake_pos2[0] > frame[0] - 10 - 120:
+            out2 = 1
+            game_over(main_window, frame)
+        if snake_pos2[1] < 0 or snake_pos2[1] > frame[1] - 10:
+            out2 = 1
+            game_over(main_window, frame)
+
+        # 뱀끼리의 몸 충돌
         for block in snake_body1[1:] and snake_body2[1:]:
-            if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]: out1=1; game_over(main_window, frame)
-            if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]: out2=1; game_over(main_window, frame)
-            
-        #장애물과의 충돌
+            if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
+                out1 = 1
+                game_over(main_window, frame)
+            if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
+                out2 = 1
+                game_over(main_window, frame)
+
+        # 장애물과의 충돌
         for obstacle in obstacle_pos:
             if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
-                out1=1; game_over(main_window, frame)
+                out1 = 1
+                game_over(main_window, frame)
             if snake_pos2[0] == obstacle[0] and snake_pos2[1] == obstacle[1]:
-                out2=1; game_over(main_window, frame)
+                out2 = 1
+                game_over(main_window, frame)
 
     # 점수를 띄워줍니다.
     show_score(main_window, frame, 1, white, "consolas", 20)
