@@ -38,14 +38,22 @@ score2 = 0
 mode = 2
 
 snake_pos1 = [320, 200]
-snake_body1 = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
+snake_body1 = [
+    [snake_pos1[0], snake_pos1[1]],
+    [snake_pos1[0] - 10, snake_pos1[1]],
+    [snake_pos1[0] - 20, snake_pos1[1]],
+]
 snake_color1 = green
 
 if mode == 1:
     snake_pos2 = [-1, -1]
 else:
     snake_pos2 = [400, 280]
-snake_body2 = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
+snake_body2 = [
+    [snake_pos2[0], snake_pos2[1]],
+    [snake_pos2[0] + 10, snake_pos2[1]],
+    [snake_pos2[0] + 20, snake_pos2[1]],
+]
 snake_color2 = blue
 
 food_pos = [
@@ -255,7 +263,7 @@ while True:
         # 스코어 3점 오를때마다 속도 증가함
         if fps_increase == 3:
             fps += 1
-            fps_increase /= 3
+            fps_increase %= 3
         else:
             fps_increase += 1
         food_spawn = False
@@ -274,7 +282,7 @@ while True:
         # 스코어 3점 오를때마다 속도 증가함
         if fps_increase == 3:
             fps += 1
-            fps_increase /= 3
+            fps_increase %= 3
         else:
             fps_increase += 1
         food_spawn = False
@@ -390,7 +398,15 @@ while True:
             game_over(main_window, frame)
 
         # 뱀끼리의 몸 충돌
-        for block in snake_body1[1:] and snake_body2[1:]:
+        for block in snake_body1[1:]:
+            if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
+                out1 = 1
+                game_over(main_window, frame)
+            if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
+                out2 = 1
+                game_over(main_window, frame)
+
+        for block in snake_body2[1:]:
             if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
                 out1 = 1
                 game_over(main_window, frame)
