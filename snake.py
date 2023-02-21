@@ -12,6 +12,8 @@ import pygame, random, time
 fps = 15
 fps_controller = pygame.time.Clock()
 
+fps_increase = 0
+
 # 창 크기
 frame = (720, 480)
 
@@ -162,6 +164,12 @@ while True:
     snake_body.insert(0, list(snake_pos))
     if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
         score += 1
+        # 스코어 3점 오를때마다 속도 증가함
+        if fps_increase == 3:
+            fps += 1
+            fps_increase /= 3
+        else:
+            fps_increase += 1
         food_spawn = False
     else:
         snake_body.pop()
