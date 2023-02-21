@@ -38,7 +38,7 @@ snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 snake_color = green
 
 food_pos = [
-    random.randrange(1, (frame[0] // 10)) * 10,
+    random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
     random.randrange(1, (frame[1] // 10)) * 10,
 ]
 food_spawn = True
@@ -93,7 +93,7 @@ def show_score(window, size, choice, color, font, fontsize):
 
     # Game over 상황인지 게임중 상황인지에 따라 다른 위치를 선정합니다.
     if choice == 1:
-        score_rect.midtop = (size[0] / 12, 15)
+        score_rect.midtop = (size[0] / 13, 15)
     else:
         score_rect.midtop = (size[0] / 2, size[1] / 1.25)
 
@@ -201,7 +201,7 @@ while True:
         while food_spawn == False:
             food_spawn = True
             food_pos = [
-                random.randrange(1 + 13, (frame[0] // 10) - 14) * 10,
+                random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
                 random.randrange(1, (frame[1] // 10)) * 10,
             ]
             # 만약 음식 생성 위치에 장애물이 있다면 다른곳에 음식을 생성함
@@ -212,7 +212,7 @@ while True:
 
         # 장애물을 생성함
         while 1:
-            obstacle_x = random.randrange(1 + 13, (frame[0] // 10) - 14) * 10
+            obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
             obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
             if [obstacle_x, obstacle_y] != food_pos:
                 obstacle_pos.append([obstacle_x, obstacle_y])
@@ -236,11 +236,11 @@ while True:
     for pos in snake_body:
         pygame.draw.rect(main_window, snake_color, pygame.Rect(pos[0], pos[1], 10, 10))
         # 무지개 뱀 관련 코드
-        # rainbow_idx += 1
-        # rainbow_idx %= 7
         # pygame.draw.rect(
         #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
         # )
+        # rainbow_idx += 1
+        # rainbow_idx %= 7
 
     # 음식을 그립니다.
     pygame.draw.rect(main_window, white, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
