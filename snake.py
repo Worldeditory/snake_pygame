@@ -33,7 +33,7 @@ purple = pygame.Color(255, 0, 255)
 rainbow = [red, orange, yellow, green, blue, navy, purple]
 
 # Game 관련 변수
-snake_pos = [100, 50]
+snake_pos = [360, 240]
 snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 snake_color = green
 
@@ -93,7 +93,7 @@ def show_score(window, size, choice, color, font, fontsize):
 
     # Game over 상황인지 게임중 상황인지에 따라 다른 위치를 선정합니다.
     if choice == 1:
-        score_rect.midtop = (size[0] / 10, 15)
+        score_rect.midtop = (size[0] / 12, 15)
     else:
         score_rect.midtop = (size[0] / 2, size[1] / 1.25)
 
@@ -201,7 +201,7 @@ while True:
         while food_spawn == False:
             food_spawn = True
             food_pos = [
-                random.randrange(1, (frame[0] // 10)) * 10,
+                random.randrange(1 + 13, (frame[0] // 10) - 14) * 10,
                 random.randrange(1, (frame[1] // 10)) * 10,
             ]
             # 만약 음식 생성 위치에 장애물이 있다면 다른곳에 음식을 생성함
@@ -212,7 +212,7 @@ while True:
 
         # 장애물을 생성함
         while 1:
-            obstacle_x = random.randrange(1, (frame[0] // 10)) * 10
+            obstacle_x = random.randrange(1 + 13, (frame[0] // 10) - 14) * 10
             obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
             if [obstacle_x, obstacle_y] != food_pos:
                 obstacle_pos.append([obstacle_x, obstacle_y])
@@ -220,6 +220,15 @@ while True:
 
     # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
     main_window.fill(black)
+
+    pygame.draw.rect(
+        main_window, pygame.Color(127, 127, 127), pygame.Rect(0, 0, 120, 480)
+    )
+    pygame.draw.rect(
+        main_window,
+        pygame.Color(127, 127, 127),
+        pygame.Rect(frame[0] - 120, 0, 120, 480),
+    )
 
     # 무지개 뱀 만들기
     # rainbow_idx = 0
@@ -245,7 +254,7 @@ while True:
     # Game Over 상태를 확인합니다.
 
     # 바깥 벽 충돌
-    if snake_pos[0] < 0 or snake_pos[0] > frame[0] - 10:
+    if snake_pos[0] < 0 + 120 or snake_pos[0] > frame[0] - 10 - 120:
         game_over(main_window, frame)
     if snake_pos[1] < 0 or snake_pos[1] > frame[1] - 10:
         game_over(main_window, frame)
