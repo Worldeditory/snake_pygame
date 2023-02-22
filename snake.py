@@ -408,6 +408,11 @@ while True:
             score2 -= 5
             game_over(main_window, frame)
 
+        if snake_pos1 == snake_pos2:
+            score1 -= 5
+            score2 -= 5
+            game_over(main_window, frame)
+
         # 뱀끼리의 몸 충돌
         for block in snake_body1[1:]:
             if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
