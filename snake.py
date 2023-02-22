@@ -121,13 +121,13 @@ def show_score(window, size, choice, color, font, fontsize):
         # 설정한 글자를 window에 복사
         window.blit(score_surface, score_rect)
     elif mode == 2:
-        score_surface1 = score_font.render(f"Player1:{score1}", True, color)
-        score_surface2 = score_font.render(f"Player2:{score2}", True, color)
+        score_surface1 = score_font.render(f"Player1:{score1}", True, snake_color1)
+        score_surface2 = score_font.render(f"Player2:{score2}", True, snake_color2)
         score_rect1 = score_surface1.get_rect()
         score_rect2 = score_surface2.get_rect()
         if choice == 1:
             score_rect1.midtop = (size[0] / 13, 10)
-            score_rect2.midtop = (size[0] / 13, 26)
+            score_rect2.midtop = (600 + size[0] / 13, 10)
         else:
             score_rect1.center = (size[0] / 2, size[1] / 1.3)
             score_rect2.center = (size[0] / 2, size[1] / 1.2)
@@ -138,15 +138,13 @@ def show_score(window, size, choice, color, font, fontsize):
 # Game Over
 def game_over(window, size):
     win = 0
-    if out1 == out2:
-        if out1 == 0:
-            win = 0
-        else:
+    if mode == 2:
+        if score1 > score2:
+            win = 1
+        if score1 < score2:
+            win = 2
+        if score1 == score2:
             win = 3
-    elif out1 == 0:
-        win = 1
-    else:
-        win = 2
 
     # 'Game Over'문구를 띄우기 위한 설정입니다.
     my_font = pygame.font.SysFont("times new roman", 90)
@@ -179,13 +177,13 @@ def game_over(window, size):
 def get_keyboard1(key, cur_dir):
     # WASD, 방향키를 입력 받으면 해당 방향으로 이동합니다.
     # 방향이 반대방향이면 무시합니다.
-    if direction1 != "DOWN1" and key == pygame.K_UP:
+    if direction1 != "DOWN1" and key == ord("w"):
         return "UP1"
-    if direction1 != "UP1" and key == pygame.K_DOWN:
+    if direction1 != "UP1" and key == ord("s"):
         return "DOWN1"
-    if direction1 != "RIGHT1" and key == pygame.K_LEFT:
+    if direction1 != "RIGHT1" and key == ord("a"):
         return "LEFT1"
-    if direction1 != "LEFT1" and key == pygame.K_RIGHT:
+    if direction1 != "LEFT1" and key == ord("d"):
         return "RIGHT1"
     # 모두 해당하지 않다면 원래 방향을 돌려줍니다.
     return cur_dir
@@ -194,13 +192,13 @@ def get_keyboard1(key, cur_dir):
 def get_keyboard2(key, cur_dir):
     # WASD, 방향키를 입력 받으면 해당 방향으로 이동합니다.
     # 방향이 반대방향이면 무시합니다.
-    if direction2 != "DOWN2" and key == ord("w"):
+    if direction2 != "DOWN2" and key == pygame.K_UP:
         return "UP2"
-    if direction2 != "UP2" and key == ord("s"):
+    if direction2 != "UP2" and key == pygame.K_DOWN:
         return "DOWN2"
-    if direction2 != "RIGHT2" and key == ord("a"):
+    if direction2 != "RIGHT2" and key == pygame.K_LEFT:
         return "LEFT2"
-    if direction2 != "LEFT2" and key == ord("d"):
+    if direction2 != "LEFT2" and key == pygame.K_RIGHT:
         return "RIGHT2"
     # 모두 해당하지 않다면 원래 방향을 돌려줍니다.
     return cur_dir
@@ -381,37 +379,47 @@ while True:
             if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
                 game_over(main_window, frame)
 
+    # 게임오버 당할 경우 스코어에서 5점을 뺀다
+
     elif mode == 2:
         # 바깥 벽
         if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
             out1 = 1
+            score1 -= 5
             game_over(main_window, frame)
         if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
             out1 = 1
+            score1 -= 5
             game_over(main_window, frame)
 
         if snake_pos2[0] < 0 + 120 or snake_pos2[0] > frame[0] - 10 - 120:
             out2 = 1
+            score2 -= 5
             game_over(main_window, frame)
         if snake_pos2[1] < 0 or snake_pos2[1] > frame[1] - 10:
             out2 = 1
+            score2 -= 5
             game_over(main_window, frame)
 
         # 뱀끼리의 몸 충돌
         for block in snake_body1[1:]:
             if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
                 out1 = 1
+                score1 -= 5
                 game_over(main_window, frame)
             if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
                 out2 = 1
+                score2 -= 5
                 game_over(main_window, frame)
 
         for block in snake_body2[1:]:
             if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
                 out1 = 1
+                score1 -= 5
                 game_over(main_window, frame)
             if snake_pos2[0] == block[0] and snake_pos2[1] == block[1]:
                 out2 = 1
+                score2 -= 5
                 game_over(main_window, frame)
 
         # 장애물과의 충돌
