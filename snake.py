@@ -1,6 +1,7 @@
 # imports
 import sys, subprocess
-subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame", "schedule"])
+subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame"])
+subprocess.check_call([sys.executable, "-m", "pip", "install", "schedule"])
 import pygame, random, time, os
 pygame.init()
 ### 1-1. 게임 사전 설정
