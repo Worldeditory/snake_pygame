@@ -7,16 +7,11 @@ pygame.init()
 #에셋 데려오기
 address = os.path.dirname(__file__)
 
-GameTitle = pygame.image.load(address+"\snake_assets\img\제목.png").convert()
-playB = pygame.image.load(address+"\snake_assets\img\startB.png").convert()
-optionsB = pygame.image.load(address+"\snake_assets\img\optionsB.png").convert()
-PenaltyB = pygame.image.load(address+"\snake_assets\img\PenaltyB.png").convert()
-backB = pygame.image.load(address+"\snake_assets\img\BackB.png").convert()
-exitB = pygame.image.load(address+"\snake_assets\img\exitB.png").convert()
-less = pygame.image.load(address+"\snake_assets\img\less.png").convert()
-more = pygame.image.load(address+"\snake_assets\img\more.png").convert()
-mode1 = pygame.image.load(address+"\snake_assets\img\mode1.png").convert()
-mode2 = pygame.image.load(address+"\snake_assets\img\mode2.png").convert()
+GameTitle = pygame.image.load(address+"\snake_assets\img\제목.png")
+snake = pygame.image.load(address+"\snake_assets\img\snake.png")
+playB = pygame.transform.scale(pygame.image.load(address+"\snake_assets\img\startB.png"), (100,40))
+exitB = pygame.transform.scale(pygame.image.load(address+"\snake_assets\img\exitB.png"), (100,40))
+exitB = pygame.transform.scale(pygame.image.load(address+"\snake_assets\img\exitB.png"), (100,40))
 
 Beep = pygame.mixer.Sound(address+"\snake_assets\sound\Beep.wav")
 Gameover = pygame.mixer.Sound(address+"\snake_assets\sound\Gameover.wav")
@@ -47,8 +42,8 @@ rainbow = [red, orange, yellow, green, blue, navy, purple]
 # Game 관련 변수
 score1 = 0
 score2 = 0
-win = 0
 mode = 0
+win = 0
 penalty = 10
 
 snake_pos1 = [320, 200]
@@ -116,72 +111,28 @@ def button(img_in, x, y, width, height, num):
             if y + height > mouse[1]:
                 if mouse[1] > y:
                     if click[0]:
-                        Beep.play(1,0.0)
-                        pygame.delay(1000)
-
-                        if num ==  0: mainmenu()
-                        elif num == 1: modeset(1)
-                        elif num == 2: modeset(2)
-                        elif num == 3: changeP(-1)
-                        elif num == 4: changeP(1)
-                        elif num == 5: modemenu()
-                        elif num == 6: optionsmenu()
+                        Beep.play(1,0)
+                        time.sleep(1)
+                        if num == 5: rungame()
                         elif num == 7: quitgame()
                         else: pass
                         
 
 def mainmenu():
-    menu = True
-    while menu:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quitgame()
-    main_window.fill(black)
 
-    pygame.display.blit(GameTitle, (50,50))
-    button(playB, 100, 400,100, 40, 5)
-    button(optionsB, 310, 400,100,40, 6)
-    button(exitB, 520, 400,100,40, 7)
+        main_window.fill(black)
 
-    pygame.display.update()
-    fps_controller.tick(15)
+        main_window.blit(snake, (150, 100))
+        main_window.blit(GameTitle, (80,50))
+        button(playB, 100, 400,100, 40, 5)
+        button(exitB, 520, 400,100,40, 7)
 
-def modemenu():
-    select = True
-    while select:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quitgame()
-    main_window.fill(black)
-    button(mode1, 200, 200,100,40, 1)
-    button(mode2, 520, 200,100,40, 2)
-
-    pygame.display.update()
-    fps_controller.tick(15)
-
-def optionsmenu():
-    select = True
-    while select:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quitgame()
-    main_window.fill(black)
-    button(less, 310, 200,100,40, 3)
-    button(more, 310, 200,100,40, 4)
-    button(PenaltyB, 310, 200,100,40, None)
-    button(backB, 310, 400,100,40, 0)
-    pygame.display.update()
-    fps_controller.tick(15)
-
-def modeset(num):
-    global mode
-    mode = num
-    rungame()
-
-def changeP(n):
-    global penalty
-    penalty += n
-
+        pygame.display.update()
+        fps_controller.tick(15)
     
 
 # (r, g, b)받아서 뱀 색 변경하는 함수
@@ -222,7 +173,7 @@ def show_score(window, size, choice, color, font, fontsize):
 def game_over(window, size):
     global penalty, score1, score2, mode
     pygame.mixer.music.stop()
-    Gameover.play(1,0.0)
+    Gameover.play(1,0)
     # 'Game Over'문구를 띄우기 위한 설정입니다.
     my_font = pygame.font.SysFont("times new roman", 90)
     if mode==1:
@@ -275,15 +226,47 @@ def get_keyboard2(key, cur_dir):
         return "RIGHT2"
     # 모두 해당하지 않다면 원래 방향을 돌려줍니다.
     return cur_dir
-# Game이 동작하기 위한 메인 코드
-# 초기화합니다.
-# Initialize
-main_window = Init(frame)
+
 # 반짝거리는 무지개 뱀
 # rainbow_idx = 0
 
 def rungame():
-    global win
+    global win, mode, direction1, direction2, food_pos, food_spawn, fps, fps_increase, score1, score2
+    score1 = 0
+    score2 = 0
+    win = 0
+
+    snake_pos1 = [320, 200]
+    snake_body1 = [
+        [snake_pos1[0], snake_pos1[1]],
+        [snake_pos1[0] - 10, snake_pos1[1]],
+        [snake_pos1[0] - 20, snake_pos1[1]],
+    ]
+    snake_color1 = green
+
+    if mode == 1:
+        snake_pos2 = [-1, -1]
+    else:
+        snake_pos2 = [400, 280]
+    snake_body2 = [
+        [snake_pos2[0], snake_pos2[1]],
+        [snake_pos2[0] + 10, snake_pos2[1]],
+        [snake_pos2[0] + 20, snake_pos2[1]],
+    ]
+    snake_color2 = blue
+
+    food_pos = [
+        random.randrange(1 + 12, (frame[0] // 10) - 14) * 10,
+        random.randrange(1, (frame[1] // 10)) * 10,
+    ]
+    food_spawn = True
+    direction1 = "RIGHT1"
+    direction2 = "LEFT2"
+    obstacle_pos = []
+    # 장애물 생성할 때 임시로 사용할 변수
+    obstacle_x = 0
+    obstacle_y = 0
+    mode = random.choice([1, 2])
     playmusic()
     while True:
         # 게임에서 event를 받아옵니다.
@@ -323,7 +306,7 @@ def rungame():
         snake_body1.insert(0, list(snake_pos1))
         if snake_pos1[0] == food_pos[0] and snake_pos1[1] == food_pos[1]:
             score1 += 1
-            Beep.play(1,0.0)
+            Beep.play(1,0)
             # 스코어 3점 오를때마다 속도 증가함
             if fps_increase == 3:
                 fps += 1
@@ -342,7 +325,7 @@ def rungame():
         snake_body2.insert(0, list(snake_pos2))
         if snake_pos2[0] == food_pos[0] and snake_pos2[1] == food_pos[1]:
             score2 += 1
-            Beep.play(1,0.0)
+            Beep.play(1,0)
             # 스코어 3점 오를때마다 속도 증가함
             if fps_increase == 3:
                 fps += 1
@@ -372,6 +355,70 @@ def rungame():
                     if food_pos == obstacle:
                         food_spawn = False
                         break
+            # 장애물을 생성함
+            while 1:
+                obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
+                obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
+                if [obstacle_x, obstacle_y] != food_pos:
+                    obstacle_pos.append([obstacle_x, obstacle_y])
+                    break
+
+        # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
+        main_window.fill(black)
+
+        pygame.draw.rect(
+            main_window, pygame.Color(127, 127, 127), pygame.Rect(0, 0, 120, 480)
+        )
+        pygame.draw.rect(
+            main_window,
+            pygame.Color(127, 127, 127),
+            pygame.Rect(frame[0] - 120, 0, 120, 480),
+        )
+
+        # 무지개 뱀 만들기
+        # rainbow_idx = 0
+
+        for pos in snake_body1:
+            pygame.draw.rect(main_window, snake_color1, pygame.Rect(pos[0], pos[1], 10, 10))
+            # 무지개 뱀 관련 코드
+            # pygame.draw.rect(
+            #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
+            # )
+            # rainbow_idx += 1
+            # rainbow_idx %= 7
+
+        if mode == 2:
+            for pos in snake_body2:
+                pygame.draw.rect(
+                    main_window, snake_color2, pygame.Rect(pos[0], pos[1], 10, 10)
+                )
+            # 무지개 뱀 관련 코드
+            # pygame.draw.rect(
+            #     main_window, rainbow[rainbow_idx], pygame.Rect(pos[0], pos[1], 10, 10)
+            # )
+            # rainbow_idx += 1
+            # rainbow_idx %= 7
+
+        # 음식을 그립니다.
+        pygame.draw.rect(main_window, red, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+
+        # 장애물을 그립니다
+        for obstacle in obstacle_pos:
+            pygame.draw.rect(
+                main_window, white, pygame.Rect(obstacle[0], obstacle[1], 10, 10)
+            )
+         # Game Over 상태를 확인합니다.
+        if mode == 1:
+            # 바깥 벽
+            if snake_pos1[0] < 0 + 120 or snake_pos1[0] > frame[0] - 10 - 120:
+                game_over(main_window, frame)
+            if snake_pos1[1] < 0 or snake_pos1[1] > frame[1] - 10:
+                game_over(main_window, frame)
+    
+            # 자기 몸
+            for block in snake_body1[1:]:
+                if snake_pos1[0] == block[0] and snake_pos1[1] == block[1]:
+                    game_over(main_window, frame)
             # 장애물
             for obstacle in obstacle_pos:
                 if snake_pos1[0] == obstacle[0] and snake_pos1[1] == obstacle[1]:
@@ -421,4 +468,11 @@ def rungame():
         # 해당 FPS만큼 대기
         fps_controller.tick(fps)
 
+
+# Game이 동작하기 위한 메인 코드
+# 초기화합니다.
+# Initialize
+main_window = Init(frame)
+
+#메인메뉴 펴기
 mainmenu()
