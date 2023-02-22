@@ -35,7 +35,8 @@ rainbow = [red, orange, yellow, green, blue, navy, purple]
 # Game 관련 변수
 score1 = 0
 score2 = 0
-mode = 2
+mode = 1
+
 
 snake_pos1 = [320, 200]
 snake_body1 = [
@@ -137,6 +138,7 @@ def show_score(window, size, choice, color, font, fontsize):
 
 # Game Over
 def game_over(window, size):
+    hit_sound.play()
     win = 0
     if mode == 2:
         if score1 > score2:
@@ -214,6 +216,9 @@ main_window = Init(frame)
 # 반짝거리는 무지개 뱀
 # rainbow_idx = 0
 
+item_sound = pygame.mixer.Sound("item.mp3")
+hit_sound = pygame.mixer.Sound("hit.mp3")
+
 
 while True:
     # 게임에서 event를 받아옵니다.
@@ -258,6 +263,7 @@ while True:
     snake_body1.insert(0, list(snake_pos1))
     if snake_pos1[0] == food_pos[0] and snake_pos1[1] == food_pos[1]:
         score1 += 1
+        item_sound.play()
         # 스코어 3점 오를때마다 속도 증가함
         if fps_increase == 3:
             fps += 1
@@ -277,6 +283,7 @@ while True:
     snake_body2.insert(0, list(snake_pos2))
     if snake_pos2[0] == food_pos[0] and snake_pos2[1] == food_pos[1]:
         score2 += 1
+        item_sound.play()
         # 스코어 3점 오를때마다 속도 증가함
         if fps_increase == 3:
             fps += 1
