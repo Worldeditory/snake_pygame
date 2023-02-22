@@ -7,16 +7,16 @@ pygame.init()
 #에셋 데려오기
 address = os.path.dirname(__file__)
 
-GameTitle = pygame.image.load(address+"\snake_assets\img\제목.png")
-playB = pygame.image.load(address+"\snake_assets\img\startB.png")
-optionsB = pygame.image.load(address+"\snake_assets\img\optionsB.png")
-PenaltyB = pygame.image.load(address+"\snake_assets\img\PenaltyB.png")
-backB = pygame.image.load(address+"\snake_assets\img\BackB.png")
-exitB = pygame.image.load(address+"\snake_assets\img\exitB.png")
-less = pygame.image.load(address+"\snake_assets\img\less.png")
-more = pygame.image.load(address+"\snake_assets\img\more.png")
-mode1 = pygame.image.load(address+"\snake_assets\img\mode1.png")
-mode2 = pygame.image.load(address+"\snake_assets\img\mode2.png")
+GameTitle = pygame.image.load(address+"\snake_assets\img\제목.png").convert()
+playB = pygame.image.load(address+"\snake_assets\img\startB.png").convert()
+optionsB = pygame.image.load(address+"\snake_assets\img\optionsB.png").convert()
+PenaltyB = pygame.image.load(address+"\snake_assets\img\PenaltyB.png").convert()
+backB = pygame.image.load(address+"\snake_assets\img\BackB.png").convert()
+exitB = pygame.image.load(address+"\snake_assets\img\exitB.png").convert()
+less = pygame.image.load(address+"\snake_assets\img\less.png").convert()
+more = pygame.image.load(address+"\snake_assets\img\more.png").convert()
+mode1 = pygame.image.load(address+"\snake_assets\img\mode1.png").convert()
+mode2 = pygame.image.load(address+"\snake_assets\img\mode2.png").convert()
 
 Beep = pygame.mixer.Sound(address+"\snake_assets\sound\Beep.wav")
 Gameover = pygame.mixer.Sound(address+"\snake_assets\sound\Gameover.wav")
@@ -107,33 +107,41 @@ def quitgame():
 
 
 #기능을 수행하는 버튼
-class button:
-  def __init__(self, img_in, x, y, width, height, action):
+def button(img_in, x, y, width, height, num):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
     main_window.blit(img_in, (x,y))
-    if x + width > mouse[0] > x and y + height > mouse[1] > y:
-        if click[0] == 1  and action != None:
-            Beep.play(1,0.0)
-            pygame.delay(1000)
-            action()
-    else:
-      main_window.blit(img_in, (x,y))
+    if x + width > mouse[0]:
+        if mouse[0] > x:
+            if y + height > mouse[1]:
+                if mouse[1] > y:
+                    if click[0]:
+                        Beep.play(1,0.0)
+                        pygame.delay(1000)
+
+                        if num ==  0: mainmenu()
+                        elif num == 1: modeset(1)
+                        elif num == 2: modeset(2)
+                        elif num == 3: changeP(-1)
+                        elif num == 4: changeP(1)
+                        elif num == 5: modemenu()
+                        elif num == 6: optionsmenu()
+                        elif num == 7: quitgame()
+                        else: pass
+                        
 
 def mainmenu():
     menu = True
-    music = 1
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quitgame()
-    if music == 1: pass
     main_window.fill(black)
 
-    titletext = pygame.display.blit(GameTitle, (50,50))
-    startB = button(playB, 100, 400,100, 40, modemenu())
-    optionB = button(optionsB, 310, 400,100,40, optionsmenu())
-    quitB = button(exitB, 520, 400,100,40, quitgame())
+    pygame.display.blit(GameTitle, (50,50))
+    button(playB, 100, 400,100, 40, 5)
+    button(optionsB, 310, 400,100,40, 6)
+    button(exitB, 520, 400,100,40, 7)
 
     pygame.display.update()
     fps_controller.tick(15)
@@ -145,9 +153,8 @@ def modemenu():
             if event.type == pygame.QUIT:
                 quitgame()
     main_window.fill(black)
-
-    mode1B= button(mode1, 200, 200,100,40, modeset(1))
-    mode2B= button(mode2, 520, 200,100,40, modeset(2))
+    button(mode1, 200, 200,100,40, 1)
+    button(mode2, 520, 200,100,40, 2)
 
     pygame.display.update()
     fps_controller.tick(15)
@@ -159,12 +166,10 @@ def optionsmenu():
             if event.type == pygame.QUIT:
                 quitgame()
     main_window.fill(black)
-
-    penaltyUP = button(less, 310, 200,100,40, changeP(1))
-    penaltyDOWN = button(more, 310, 200,100,40, changeP(-1))
-    penaltyB = button(PenaltyB, 310, 200,100,40, None)
-    BackB = button(backB, 310, 400,100,40, mainmenu())
-
+    button(less, 310, 200,100,40, 3)
+    button(more, 310, 200,100,40, 4)
+    button(PenaltyB, 310, 200,100,40, None)
+    button(backB, 310, 400,100,40, 0)
     pygame.display.update()
     fps_controller.tick(15)
 
@@ -176,6 +181,7 @@ def modeset(num):
 def changeP(n):
     global penalty
     penalty += n
+
     
 
 # (r, g, b)받아서 뱀 색 변경하는 함수
