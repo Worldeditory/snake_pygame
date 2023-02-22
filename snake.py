@@ -235,7 +235,7 @@ def get_keyboard2(key, cur_dir):
 # rainbow_idx = 0
 
 def rungame():
-    global win, mode, direction1, direction2, food_pos, food_spawn, fps
+    global win, mode, direction1, direction2, food_pos, food_spawn, fps, score1, score2
     mode = random.choice([1, 2])
     playmusic()
     while True:
@@ -325,13 +325,13 @@ def rungame():
                     if food_pos == obstacle:
                         food_spawn = False
                         break
-        # 장애물을 생성함
-        while 1:
-            obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
-            obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
-            if [obstacle_x, obstacle_y] != food_pos:
-                obstacle_pos.append([obstacle_x, obstacle_y])
-                break
+            # 장애물을 생성함
+            while 1:
+                obstacle_x = random.randrange(1 + 12, (frame[0] // 10) - 14) * 10
+                obstacle_y = random.randrange(1, (frame[1] // 10)) * 10
+                if [obstacle_x, obstacle_y] != food_pos:
+                    obstacle_pos.append([obstacle_x, obstacle_y])
+                    break
 
         # 우선 게임을 검은 색으로 채우고 뱀의 각 위치마다 그림을 그립니다.
         main_window.fill(black)
